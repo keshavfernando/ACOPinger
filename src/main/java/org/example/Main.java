@@ -165,6 +165,21 @@ public class Main extends ListenerAdapter
 
     private static String removeSpoilerTag(String input)
     {
-        return input.replaceAll("\\|\\|", "");
+        try
+        {
+            if (input.isEmpty())
+            {
+                return "";
+            }
+            else
+            {
+                return input.replaceAll("\\|\\|", "");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return "";
+        }
     }
 }
