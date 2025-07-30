@@ -145,14 +145,22 @@ public class Main extends ListenerAdapter
                 String webhookURL = Dotenv.load().get("DISCORD_URL");
                 DiscordWebhook webhook = new DiscordWebhook(webhookURL);
                 String userToMention = null;
+                String itemCheckedOut = null;
 
                 if (site.equals("Amazon.com"))
                 {
                     userToMention = db.getDiscordIDbyEmail(account);
+                    itemCheckedOut = embed.getDescription();
+                }
+                else if (site.equals("Pokemon Center US"))
+                {
+                    userToMention = db.getDiscordIDbyProfile(profile);
+                    itemCheckedOut = "Pokemon Center item checked Out!";
                 }
                 else
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
+                    itemCheckedOut = embed.getDescription();
                 }
 
                 webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
