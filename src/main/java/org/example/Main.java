@@ -136,6 +136,7 @@ public class Main extends ListenerAdapter
                 }
 
                 profile = removeSpoilerTag(profile);
+                account = removeSpoilerTag(account);
 
                 System.out.println("Site: " + site);
                 System.out.println("Profile: " + profile);
@@ -153,6 +154,7 @@ public class Main extends ListenerAdapter
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
                 }
+
                 webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
             }
         }
@@ -167,14 +169,7 @@ public class Main extends ListenerAdapter
     {
         try
         {
-            if (input.isEmpty())
-            {
-                return "";
-            }
-            else
-            {
-                return input.replaceAll("\\|\\|", "");
-            }
+            return input.replaceAll("\\|\\|", "");
         }
         catch (Exception e)
         {
