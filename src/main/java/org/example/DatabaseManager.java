@@ -14,17 +14,17 @@ public class DatabaseManager
     private void createUserTable()
     {
         String sql = """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                discord_id TEXT NOT NULL,
-                profile_name TEXT UNIQUE NOT NULL,
-                email TEXT UNIQUE NOT NULL
-            );
-        """;
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        discord_id TEXT NOT NULL,
+        profile_name TEXT NOT NULL,
+        email TEXT NOT NULL
+    );
+""";
 
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-        Statement stmt = conn.createStatement()){
+             Statement stmt = conn.createStatement()){
             stmt.execute(sql);
         }
         catch (SQLException e)
@@ -39,7 +39,7 @@ public class DatabaseManager
         String sql = "INSERT INTO users (discord_id, profile_name, email) VALUES (?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
-        PreparedStatement pststmt = conn.prepareStatement(sql))
+             PreparedStatement pststmt = conn.prepareStatement(sql))
         {
             pststmt.setString(1, discordId);
             pststmt.setString(2, profileName);

@@ -123,7 +123,7 @@ public class Main extends ListenerAdapter
 
     private static boolean checkOrder(String input)
     {
-        if (input.equals("Successful Checkout (Review Hold)") || input.equals("Successful Checkout!"))
+        if (input.equals("Successful Checkout (Review Hold)") || input.equals("Successful Checkout!") || input.equals("AlpineAIO - Checked Out!"))
         {
             return true;
         }
