@@ -94,23 +94,65 @@ public class Main extends ListenerAdapter
 
         Message msg = event.getMessage();
 
-        System.out.println(msg.getAuthor().getName());
-        System.out.println(msg.getContentRaw());
+        checkMessage(msg);
+
 
         if (msg.getEmbeds().isEmpty())
         {
             return;
         }
 
+    }
+
+    private static String stripMarkdownLink(String markdown) {
+        return markdown.replaceAll("\\[(.*?)]\\((.*?)\\)", "$1");
+    }
+
+    private static String removeSpoilerTag(String input)
+    {
+        try
+        {
+            return input.replaceAll("\\|\\|", "");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private static boolean checkOrder(String input)
+    {
+        if (input.equals("Successful Checkout (Review Hold)") || input.equals("Successful Checkout!"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private static void checkMessage(Message msg)
+    {
+        if (msg.getEmbeds().isEmpty())
+        {
+            addToDB(msg);
+        }
+        else
+        {
+            checkWebhook(msg);
+        }
+    }
+
+    private static void checkWebhook(Message msg)
+    {
         for (MessageEmbed embed : msg.getEmbeds())
         {
             {
                 System.out.println(embed.getTitle());
                 System.out.println(embed.getDescription());
 
-                String itemName = embed.getTitle() != null
-                        ? stripMarkdownLink(embed.getTitle())
-                        : "Unknown Item";
 
                 String site = null;
                 String profile = null;
@@ -151,38 +193,58 @@ public class Main extends ListenerAdapter
                 {
                     userToMention = db.getDiscordIDbyEmail(account);
                     itemCheckedOut = embed.getDescription();
+                    webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                    System.out.println("Checkout webhook sent");
                 }
                 else if (site.equals("Pokemon Center US"))
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
                     itemCheckedOut = "Pokemon Center item checked Out!";
+                    webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                    System.out.println("Checkout webhook sent");
                 }
                 else
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
                     itemCheckedOut = embed.getDescription();
-                }
 
-                webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                    if (checkOrder(embed.getTitle()))
+                    {
+                        webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                        System.out.println("Checkout webhook sent");
+                    }
+                    else
+                    {
+                        webhook.sendCheckoutFailure(userToMention, embed.getDescription(), site);
+                        System.out.println("Failure webhook sent");
+                    }
+                }
             }
         }
-
     }
 
-    private static String stripMarkdownLink(String markdown) {
-        return markdown.replaceAll("\\[(.*?)]\\((.*?)\\)", "$1");
-    }
-
-    private static String removeSpoilerTag(String input)
+    private static void addToDB(Message msg)
     {
-        try
+        String data = msg.getContentRaw();
+
+        String[] lines = data.split("\n");
+
+
+        for (String line : lines)
         {
-            return input.replaceAll("\\|\\|", "");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return "";
+            System.out.println("Starting work on line: " + line);
+
+            String[] userData = line.trim().split(",", 3);
+
+            if (userData.length == 3)
+            {
+                String profile = userData[0];
+                String email = userData[1];
+                String discordID = userData[2];
+
+                db.insertUser(discordID,profile,email);
+                System.out.println("Users added to database: " + profile + ": " + email);
+            }
         }
     }
 }

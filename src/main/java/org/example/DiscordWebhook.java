@@ -104,9 +104,9 @@ public class DiscordWebhook
         return sendEmbed(
                 "❌ Failed Checkout!",
                 "**Item:** " + item + "\n**Website:** " + website,
-                "ff0000", // Green color for success
+                "ff0000", // Red color for success
                 "Volt ACO",
-                "Purchase failed",
+                "Purchase failed - check your account",
                 userId
         );
     }
