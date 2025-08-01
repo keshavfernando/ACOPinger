@@ -23,6 +23,8 @@ import java.net.http.HttpRequest;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Main extends ListenerAdapter
@@ -30,6 +32,9 @@ public class Main extends ListenerAdapter
 
     private static DatabaseManager db;
     private static Dotenv dot;
+    private static final Pattern pattern = Pattern.compile("^([^,]+),([^,]+),([^,]+)$");
+    private static final Pattern emailPattern = Pattern.compile("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
+    private static Matcher matcher;
 
     public static void main(String[] args) throws LoginException, InterruptedException
     {
@@ -150,7 +155,7 @@ public class Main extends ListenerAdapter
     {
         if (msg.getEmbeds().isEmpty())
         {
-            addToDB(msg, channel);
+            checkAndAdd(msg, channel);
         }
         else
         {
@@ -236,36 +241,33 @@ public class Main extends ListenerAdapter
         }
     }
 
-    private static void addToDB(Message msg, TextChannel channel)
+    private static void checkAndAdd(Message msg, TextChannel channel)
     {
         String data = msg.getContentRaw();
 
         String[] lines = data.split("\n");
 
-
         for (String line : lines)
         {
-            System.out.println("Starting work on line: " + line);
 
-            String[] userData = line.trim().split(",", 3);
+            Matcher matcher = pattern.matcher(line);
 
-            if (userData.length == 3)
-            {
-                String profile = userData[0];
-                String email = userData[1];
-                String discordID = userData[2];
+            if (matcher.matches()) {
+                String profileName = matcher.group(1).trim();
+                String email = matcher.group(2).trim();
+                String discordID = matcher.group(3).trim();
 
-                boolean complete = db.insertUser(discordID,profile,email);
-
-                if (complete)
-                {
-                    channel.sendTyping().queue();
-                    channel.sendMessage("✅ User: " + email + " has been added to database").queue();
-                }
-                else
-                {
-                    channel.sendTyping().queue();
-                    channel.sendMessage("❌ User: " + email + " has NOT been added to database").queue();
+                if (emailPattern.matcher(email).matches()) {
+                    boolean complete = db.insertUser(discordID, profileName, email);
+                    if (complete) {
+                        channel.sendTyping().queue();
+                        channel.sendMessage("✅ User: " + email + " has been added to database").queue();
+                    } else {
+                        channel.sendTyping().queue();
+                        channel.sendMessage("❌ User: " + email + " has NOT been added to database").queue();
+                    }
+                } else {
+                    System.out.println("Bad format");
                 }
             }
         }
