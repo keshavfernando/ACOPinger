@@ -29,7 +29,9 @@ public class Main extends ListenerAdapter
 
     public static void main(String[] args) throws LoginException, InterruptedException
     {
-        Dotenv dot = Dotenv.load();
+        Dotenv dot = Dotenv.configure()
+                .directory("C:\\Users\\Administrator\\Downloads\\ACOPinger-master\\ACOPinger-master")
+                .load();
 
         db = new DatabaseManager();
 
