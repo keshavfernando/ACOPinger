@@ -7,6 +7,7 @@ This script is a Discord bot built with Java and SQLite that listens for incomin
 - Notifies clients in seperate Discord servers with pings and item names
 - Simple SQLite database integration to keep track of client and webhook tracking
 - Easily configurable with slash commands to add users.
+- Add bulk profiles with messages in channels
 
 📦 Built with
 - Java 17

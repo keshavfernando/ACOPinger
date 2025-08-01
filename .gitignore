@@ -37,13 +37,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
-
-### Ignore tokens ###
-.env
-
-## Ignore Database ##
-/data/*.db
-
 # Ignore IntelliJ settings
 .idea/
 *.iml
