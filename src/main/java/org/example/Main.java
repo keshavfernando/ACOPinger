@@ -92,9 +92,11 @@ public class Main extends ListenerAdapter
             return;
         }
 
+        TextChannel channel = event.getChannel().asTextChannel();
+
         Message msg = event.getMessage();
 
-        checkMessage(msg);
+        checkMessage(msg, channel);
 
 
         if (msg.getEmbeds().isEmpty())
@@ -133,11 +135,11 @@ public class Main extends ListenerAdapter
         }
     }
 
-    private static void checkMessage(Message msg)
+    private static void checkMessage(Message msg, TextChannel channel)
     {
         if (msg.getEmbeds().isEmpty())
         {
-            addToDB(msg);
+            addToDB(msg, channel);
         }
         else
         {
@@ -223,7 +225,7 @@ public class Main extends ListenerAdapter
         }
     }
 
-    private static void addToDB(Message msg)
+    private static void addToDB(Message msg, TextChannel channel)
     {
         String data = msg.getContentRaw();
 
@@ -242,8 +244,18 @@ public class Main extends ListenerAdapter
                 String email = userData[1];
                 String discordID = userData[2];
 
-                db.insertUser(discordID,profile,email);
-                System.out.println("Users added to database: " + profile + ": " + email);
+                boolean complete = db.insertUser(discordID,profile,email);
+
+                if (complete)
+                {
+                    channel.sendTyping().queue();
+                    channel.sendMessage("✅ User: " + email + " has been added to database").queue();
+                }
+                else
+                {
+                    channel.sendTyping().queue();
+                    channel.sendMessage("❌ User: " + email + " has NOT been added to database").queue();
+                }
             }
         }
     }

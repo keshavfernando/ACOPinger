@@ -1,4 +1,6 @@
 package org.example;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
 import java.sql.*;
 
 public class DatabaseManager
@@ -32,6 +34,18 @@ public class DatabaseManager
             e.printStackTrace();
         }
 
+    }
+    public void dropUserTable()
+    {
+        String sql = "DROP TABLE IF EXISTS users";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Table 'users' has been dropped.");
+        } catch (SQLException e) {
+            System.out.println("Failed to drop table: " + e.getMessage());
+        }
     }
 
     public boolean insertUser(String discordId, String profileName, String email)
