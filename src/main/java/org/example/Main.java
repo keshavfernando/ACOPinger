@@ -15,10 +15,13 @@ import org.json.HTTP;
 import org.json.JSONObject;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.http.HttpRequest;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -26,14 +29,19 @@ public class Main extends ListenerAdapter
 {
 
     private static DatabaseManager db;
+    private static Dotenv dot;
 
     public static void main(String[] args) throws LoginException, InterruptedException
     {
         Dotenv dot = Dotenv.configure()
                 .directory("C:\\Users\\Administrator\\Downloads\\ACOPinger-master\\ACOPinger-master")
+                .filename(".env")
                 .load();
 
-        db = new DatabaseManager();
+        Path dbPath = Paths.get(dot.get("DB_PATH")).toAbsolutePath().normalize();
+        String DB_URL = "jdbc:sqlite:" + dbPath.toString();
+
+        db = new DatabaseManager(DB_URL);
 
 
         String token = dot.get("DISCORD_BOT_TOKEN");
@@ -87,7 +95,8 @@ public class Main extends ListenerAdapter
 
     public void onMessageReceived(MessageReceivedEvent event)
     {
-        String dotChannel = Dotenv.load().get("CHANNEL_ID");
+
+        String dotChannel = dot.get("CHANNEL_ID");
 
         if (!event.getChannel().getId().equals(dotChannel))
         {
@@ -188,7 +197,7 @@ public class Main extends ListenerAdapter
                 System.out.println("Profile: " + profile);
                 System.out.println("Account: " + account);
 
-                String webhookURL = Dotenv.load().get("DISCORD_URL");
+                String webhookURL = dot.get("DISCORD_URL");
                 DiscordWebhook webhook = new DiscordWebhook(webhookURL);
                 String userToMention = null;
                 String itemCheckedOut = null;

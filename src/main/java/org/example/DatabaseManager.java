@@ -1,15 +1,16 @@
 package org.example;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.sql.*;
 
 public class DatabaseManager
 {
 
-    private static final String DB_URL = "jdbc:sqlite:data/user_data.db";
+    private final String DB_URL;
 
-    public DatabaseManager()
+
+    public DatabaseManager(String dbURL)
     {
+        this.DB_URL = dbURL;
         createUserTable();
     }
 
