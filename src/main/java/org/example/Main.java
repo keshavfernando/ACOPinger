@@ -23,6 +23,7 @@ import java.net.http.HttpRequest;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +36,22 @@ public class Main extends ListenerAdapter
     private static final Pattern pattern = Pattern.compile("^([^,]+),([^,]+),([^,]+)$");
     private static final Pattern emailPattern = Pattern.compile("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
     private static Matcher matcher;
+
+
+    private static Set<String> acceptedTitles = Set.of(
+            "Successful Checkout! :tada:",
+            "Successful Checkout (Review Hold)",
+            "Successful Checkout!"
+    );
+
+    private static Set<String> acceptedDescriptions = Set.of(
+            "Way to go :partying_face"
+    );
+
+    private static Set<String> declineTitle = Set.of(
+            "Order Canceled: Item Demand",
+            "Order Canceled: Reseller"
+    );
 
     public static void main(String[] args) throws LoginException, InterruptedException
     {
@@ -122,11 +139,11 @@ public class Main extends ListenerAdapter
 
     }
 
-    private static String stripMarkdownLink(String markdown) {
+    public static String stripMarkdownLink(String markdown) {
         return markdown.replaceAll("\\[(.*?)]\\((.*?)\\)", "$1");
     }
 
-    private static String removeSpoilerTag(String input)
+    public static String removeSpoilerTag(String input)
     {
         try
         {
@@ -139,19 +156,22 @@ public class Main extends ListenerAdapter
         }
     }
 
-    private static boolean checkOrder(String input)
+    public static boolean checkTitle(String input)
     {
-        if (input.equals("Successful Checkout (Review Hold)") || input.equals("Successful Checkout!") || input.equals("AlpineAIO - Checked Out!"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return acceptedTitles.contains(input);
     }
 
-    private static void checkMessage(Message msg, TextChannel channel)
+    public static boolean checkDescription(String input)
+    {
+        return acceptedDescriptions.contains(input);
+    }
+
+    public static boolean checkDecline(String input)
+    {
+        return declineTitle.contains(input);
+    }
+
+    public static void checkMessage(Message msg, TextChannel channel)
     {
         if (msg.getEmbeds().isEmpty())
         {
@@ -163,18 +183,23 @@ public class Main extends ListenerAdapter
         }
     }
 
-    private static void checkWebhook(Message msg)
+    public static void checkWebhook(Message msg)
     {
         for (MessageEmbed embed : msg.getEmbeds())
         {
             {
-                System.out.println(embed.getTitle());
-                System.out.println(embed.getDescription());
-
-
+                String title = embed.getTitle();
+                String description = embed.getDescription();
                 String site = null;
                 String profile = null;
                 String account = null;
+                String item = null;
+                String email = null;
+                String Product = null;
+                String productOne = null;
+
+                System.out.println(title);
+                System.out.println(description);
 
                 for (MessageEmbed.Field field : embed.getFields())
                     switch (field.getName())
@@ -188,53 +213,81 @@ public class Main extends ListenerAdapter
                         case "Site":
                             site = field.getValue();
                             break;
+                        case "Email":
+                            email = field.getValue();
+                            break;
+                        case "Item":
+                            item = field.getValue();
+                            break;
+                        case "Product":
+                            Product = field.getValue();
+                            break;
+                        case "Product (1)":
+                            productOne = field.getValue();
+                            break;
                     }
-
-                if (site == null)
-                {
-                    site = "Amazon.com";
-                }
 
                 profile = removeSpoilerTag(profile);
                 account = removeSpoilerTag(account);
+                email =removeSpoilerTag(email);
 
                 System.out.println("Site: " + site);
                 System.out.println("Profile: " + profile);
                 System.out.println("Account: " + account);
+                System.out.println("Email: " + email);
+                System.out.println("Item: " + item);
+                System.out.println("Product: " + Product);
+                System.out.println("Product (1): " + productOne);
 
                 String webhookURL = dot.get("DISCORD_URL");
                 DiscordWebhook webhook = new DiscordWebhook(webhookURL);
                 String userToMention = null;
                 String itemCheckedOut = null;
 
-                if (site.equals("Amazon.com"))
-                {
-                    userToMention = db.getDiscordIDbyEmail(account);
-                    itemCheckedOut = embed.getDescription();
-                    webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
-                    System.out.println("Checkout webhook sent");
-                }
-                else if (site.equals("Pokemon Center US"))
+
+                if (checkDecline(title))
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
-                    itemCheckedOut = "Pokemon Center item checked Out!";
-                    webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                    itemCheckedOut = description;
+                    webhook.sendCheckoutFailure(userToMention, itemCheckedOut,site);
+                    System.out.println("Checkout failure sent");
+                }
+                else if (checkTitle(title))
+                {
+                    if (account.isEmpty())
+                    {
+                        userToMention = db.getDiscordIDbyProfile(profile);
+                        itemCheckedOut = description;
+                        webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
+                        System.out.println("Checkout webhook sent");
+                    }
+                    else
+                    {
+                        userToMention = db.getDiscordIDbyEmail(account);
+                        itemCheckedOut = description;
+                        webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, "Amazon");
+                        System.out.println("Checkout webhook sent");
+                    }
+                }
+                else if (checkDescription(description))
+                {
+                    userToMention = db.getDiscordIDbyEmail(account);
+                    webhook.sendCheckoutSuccess(userToMention, item, site);
                     System.out.println("Checkout webhook sent");
                 }
                 else
                 {
                     userToMention = db.getDiscordIDbyProfile(profile);
-                    itemCheckedOut = embed.getDescription();
 
-                    if (checkOrder(embed.getTitle()))
+                    if (productOne.isEmpty())
                     {
-                        webhook.sendCheckoutSuccess(userToMention, embed.getDescription(), site);
+                        webhook.sendCheckoutSuccess(userToMention, Product, site);
                         System.out.println("Checkout webhook sent");
                     }
                     else
                     {
-                        webhook.sendCheckoutFailure(userToMention, embed.getDescription(), site);
-                        System.out.println("Failure webhook sent");
+                        webhook.sendCheckoutSuccess(userToMention, productOne, site);
+                        System.out.println("Checkout webhook sent");
                     }
                 }
             }
