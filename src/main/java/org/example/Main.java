@@ -50,7 +50,8 @@ public class Main extends ListenerAdapter
 
     private static Set<String> declineTitle = Set.of(
             "Order Canceled: Item Demand",
-            "Order Canceled: Reseller"
+            "Order Canceled: Reseller",
+            "Your card was declined"
     );
 
     public static void main(String[] args) throws LoginException, InterruptedException
@@ -247,6 +248,7 @@ public class Main extends ListenerAdapter
 
                 if (checkDecline(title))
                 {
+                    System.out.println("Item is a decline webhook");
                     userToMention = db.getDiscordIDbyProfile(profile);
                     itemCheckedOut = description;
                     webhook.sendCheckoutFailure(userToMention, itemCheckedOut,site);
@@ -254,17 +256,21 @@ public class Main extends ListenerAdapter
                 }
                 else if (checkTitle(title))
                 {
+                    System.out.println("Item is not a decline");
                     if (account.isEmpty())
                     {
+                        System.out.println("Account is empty");
                         if (checkDescription(description) && profile.isEmpty())
                         {
                             userToMention = db.getDiscordIDbyEmail(account);
+                            System.out.println("Checking by account value");
                             itemCheckedOut = item;
                             webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
                             System.out.println("Checkout webhook sent");
                         }
                         else
                         {
+                            System.out.println("Checking by profile value");
                             userToMention = db.getDiscordIDbyProfile(profile);
                             itemCheckedOut = description;
                             webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
@@ -273,6 +279,7 @@ public class Main extends ListenerAdapter
                     }
                     else
                     {
+                        System.out.println("Checking by account value - account value is empty");
                         userToMention = db.getDiscordIDbyEmail(account);
                         itemCheckedOut = description;
                         webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, "Amazon");
@@ -281,12 +288,14 @@ public class Main extends ListenerAdapter
                 }
                 else if (checkDescription(description))
                 {
+                    System.out.println("Success in description field - likely Hayha");
                     userToMention = db.getDiscordIDbyEmail(account);
                     webhook.sendCheckoutSuccess(userToMention, item, site);
                     System.out.println("Checkout webhook sent");
                 }
                 else
                 {
+                    System.out.println("Stellar webhook");
                     userToMention = db.getDiscordIDbyProfile(profile);
 
                     if (productOne.isEmpty())
