@@ -256,10 +256,20 @@ public class Main extends ListenerAdapter
                 {
                     if (account.isEmpty())
                     {
-                        userToMention = db.getDiscordIDbyProfile(profile);
-                        itemCheckedOut = description;
-                        webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
-                        System.out.println("Checkout webhook sent");
+                        if (checkDescription(description) && profile.isEmpty())
+                        {
+                            userToMention = db.getDiscordIDbyEmail(account);
+                            itemCheckedOut = item;
+                            webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
+                            System.out.println("Checkout webhook sent");
+                        }
+                        else
+                        {
+                            userToMention = db.getDiscordIDbyProfile(profile);
+                            itemCheckedOut = description;
+                            webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
+                            System.out.println("Checkout webhook sent");
+                        }
                     }
                     else
                     {
