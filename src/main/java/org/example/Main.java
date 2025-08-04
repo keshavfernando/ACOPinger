@@ -254,59 +254,47 @@ public class Main extends ListenerAdapter
                     webhook.sendCheckoutFailure(userToMention, itemCheckedOut,site);
                     System.out.println("Checkout failure sent");
                 }
+
                 else if (checkTitle(title))
                 {
                     System.out.println("Item is not a decline");
-                    if (account.isEmpty())
+                    if (item.isEmpty())
                     {
-                        System.out.println("Account is empty");
-                        if (checkDescription(description) && profile.isEmpty())
+                        if (site.isEmpty())
                         {
-                            userToMention = db.getDiscordIDbyEmail(account);
-                            System.out.println("Checking by account value");
-                            itemCheckedOut = item;
-                            webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
-                            System.out.println("Checkout webhook sent");
+                            userToMention = db.getDiscordIDbyProfile(account);
+                            webhook.sendCheckoutSuccess(userToMention, description, "Amazon");
+                            System.out.println("Checkout webhook sent!");
                         }
                         else
                         {
-                            System.out.println("Checking by profile value");
-                            userToMention = db.getDiscordIDbyProfile(profile);
-                            itemCheckedOut = description;
-                            webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, site);
-                            System.out.println("Checkout webhook sent");
+                           userToMention = db.getDiscordIDbyProfile(profile);
+
+                           if (Product.isEmpty() || productOne.isEmpty())
+                           {
+                               webhook.sendCheckoutSuccess(userToMention, description, site);
+                               System.out.println("Checkout webhook sent!");
+                           }
+                           else
+                           {
+                               if (Product.isEmpty())
+                               {
+                                   webhook.sendCheckoutSuccess(userToMention,productOne, site);
+                                   System.out.println("Checkout webhook sent!");
+                               }
+                               else
+                               {
+                                   webhook.sendCheckoutSuccess(userToMention, productOne, site);
+                                   System.out.println("Checkout webhook sent!");
+                               }
+                           }
                         }
                     }
                     else
                     {
-                        System.out.println("Checking by account value - account value is empty");
                         userToMention = db.getDiscordIDbyEmail(account);
-                        itemCheckedOut = description;
-                        webhook.sendCheckoutSuccess(userToMention, itemCheckedOut, "Amazon");
-                        System.out.println("Checkout webhook sent");
-                    }
-                }
-                else if (checkDescription(description))
-                {
-                    System.out.println("Success in description field - likely Hayha");
-                    userToMention = db.getDiscordIDbyEmail(account);
-                    webhook.sendCheckoutSuccess(userToMention, item, site);
-                    System.out.println("Checkout webhook sent");
-                }
-                else
-                {
-                    System.out.println("Stellar webhook");
-                    userToMention = db.getDiscordIDbyProfile(profile);
-
-                    if (productOne.isEmpty())
-                    {
-                        webhook.sendCheckoutSuccess(userToMention, Product, site);
-                        System.out.println("Checkout webhook sent");
-                    }
-                    else
-                    {
-                        webhook.sendCheckoutSuccess(userToMention, productOne, site);
-                        System.out.println("Checkout webhook sent");
+                        webhook.sendCheckoutSuccess(userToMention, item, site);
+                        System.out.println("Checkout webhook sent!");
                     }
                 }
             }
