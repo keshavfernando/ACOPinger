@@ -258,9 +258,9 @@ public class Main extends ListenerAdapter
                 else if (checkTitle(title))
                 {
                     System.out.println("Item is not a decline");
-                    if (item.isEmpty())
+                    if (item == null)
                     {
-                        if (site.isEmpty())
+                        if ( site == null)
                         {
                             userToMention = db.getDiscordIDbyProfile(account);
                             webhook.sendCheckoutSuccess(userToMention, description, "Amazon");
@@ -270,14 +270,14 @@ public class Main extends ListenerAdapter
                         {
                            userToMention = db.getDiscordIDbyProfile(profile);
 
-                           if (Product.isEmpty() || productOne.isEmpty())
+                           if (Product == null || productOne == null)
                            {
                                webhook.sendCheckoutSuccess(userToMention, description, site);
                                System.out.println("Checkout webhook sent!");
                            }
                            else
                            {
-                               if (Product.isEmpty())
+                               if (Product == null)
                                {
                                    webhook.sendCheckoutSuccess(userToMention,productOne, site);
                                    System.out.println("Checkout webhook sent!");
