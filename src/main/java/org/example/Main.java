@@ -41,7 +41,8 @@ public class Main extends ListenerAdapter
     private static Set<String> acceptedTitles = Set.of(
             "Successful Checkout! :tada:",
             "Successful Checkout (Review Hold)",
-            "Successful Checkout!"
+            "Successful Checkout!",
+            ":white_check_mark: Successfully Checked Out"
     );
 
     private static Set<String> acceptedDescriptions = Set.of(
@@ -262,7 +263,7 @@ public class Main extends ListenerAdapter
                     {
                         if ( site == null || site.isEmpty())
                         {
-                            userToMention = db.getDiscordIDbyProfile(account);
+                            userToMention = db.getDiscordIDbyEmail(account);
                             webhook.sendCheckoutSuccess(userToMention, description, "Amazon");
                             System.out.println("Checkout webhook sent!");
                         }
