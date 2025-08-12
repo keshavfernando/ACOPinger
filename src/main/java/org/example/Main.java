@@ -42,7 +42,8 @@ public class Main extends ListenerAdapter
             "Successful Checkout! :tada:",
             "Successful Checkout (Review Hold)",
             "Successful Checkout!",
-            ":white_check_mark: Successfully Checked Out"
+            ":white_check_mark: Successfully Checked Out",
+            "**Successful Checkout!**"
     );
 
     private static Set<String> acceptedDescriptions = Set.of(
