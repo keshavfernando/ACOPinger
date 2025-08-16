@@ -260,8 +260,8 @@ public class Main extends ListenerAdapter
                 if (checkDecline(title))
                 {
                     System.out.println("Item is a decline webhook");
-                    userToMention = db.getDiscordIDbyProfile(profile);
-                    itemCheckedOut = description;
+                    userToMention = resolveUserID(profile, email, account, db);
+                    itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutFailure(userToMention, itemCheckedOut);
                     System.out.println("Checkout failure sent");
                 }
