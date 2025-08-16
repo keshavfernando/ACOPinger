@@ -38,18 +38,6 @@ public class Main extends ListenerAdapter
     private static Matcher matcher;
 
 
-    private static Set<String> acceptedTitles = Set.of(
-            "Successful Checkout! :tada:",
-            "Successful Checkout (Review Hold)",
-            "Successful Checkout!",
-            ":white_check_mark: Successfully Checked Out",
-            "**Successful Checkout!**"
-    );
-
-    private static Set<String> acceptedDescriptions = Set.of(
-            "Way to go :partying_face"
-    );
-
     private static Set<String> declineTitle = Set.of(
             "Order Canceled: Item Demand",
             "Order Canceled: Reseller",
@@ -159,14 +147,40 @@ public class Main extends ListenerAdapter
         }
     }
 
-    public static boolean checkTitle(String input)
+    public static String resolveUserID(String profile, String email, String account, DatabaseManager db)
     {
-        return acceptedTitles.contains(input);
+        if (profile != null && !profile.isBlank())
+        {
+            return db.getDiscordIDbyProfile(profile);
+        }
+        else if (account != null && !account.isBlank())
+        {
+            return db.getDiscordIDbyEmail(account);
+        }
+        else
+        {
+            return db.getDiscordIDbyEmail(email);
+        }
     }
 
-    public static boolean checkDescription(String input)
+    public static String resolveItem(String product, String productOne, String description, String item)
     {
-        return acceptedDescriptions.contains(input);
+        if (product != null && !product.isBlank())
+        {
+            return product;
+        }
+        else if (productOne != null && !productOne.isBlank())
+        {
+            return productOne;
+        }
+        else if (item != null && !item.isBlank())
+        {
+            return item;
+        }
+        else
+        {
+            return description;
+        }
     }
 
     public static boolean checkDecline(String input)
@@ -193,7 +207,6 @@ public class Main extends ListenerAdapter
             {
                 String title = embed.getTitle();
                 String description = embed.getDescription();
-                String site = null;
                 String profile = null;
                 String account = null;
                 String item = null;
@@ -213,9 +226,6 @@ public class Main extends ListenerAdapter
                         case "Profile":
                             profile = field.getValue();
                             break;
-                        case "Site":
-                            site = field.getValue();
-                            break;
                         case "Email":
                             email = field.getValue();
                             break;
@@ -234,7 +244,6 @@ public class Main extends ListenerAdapter
                 account = removeSpoilerTag(account);
                 email =removeSpoilerTag(email);
 
-                System.out.println("Site: " + site);
                 System.out.println("Profile: " + profile);
                 System.out.println("Account: " + account);
                 System.out.println("Email: " + email);
@@ -253,52 +262,19 @@ public class Main extends ListenerAdapter
                     System.out.println("Item is a decline webhook");
                     userToMention = db.getDiscordIDbyProfile(profile);
                     itemCheckedOut = description;
-                    webhook.sendCheckoutFailure(userToMention, itemCheckedOut,site);
+                    webhook.sendCheckoutFailure(userToMention, itemCheckedOut);
                     System.out.println("Checkout failure sent");
                 }
 
-                else if (checkTitle(title))
+                else
                 {
-                    System.out.println("Item is not a decline");
-                    if (item == null || item.isEmpty())
-                    {
-                        if ( site == null || site.isEmpty())
-                        {
-                            userToMention = db.getDiscordIDbyEmail(account);
-                            webhook.sendCheckoutSuccess(userToMention, description, "Amazon");
-                            System.out.println("Checkout webhook sent!");
-                        }
-                        else
-                        {
-                           userToMention = db.getDiscordIDbyProfile(profile);
-
-                           if (Product == null || productOne == null || Product.isEmpty() || productOne.isEmpty())
-                           {
-                               webhook.sendCheckoutSuccess(userToMention, description, site);
-                               System.out.println("Checkout webhook sent!");
-                           }
-                           else
-                           {
-                               if (Product == null || Product.isEmpty())
-                               {
-                                   webhook.sendCheckoutSuccess(userToMention,productOne, site);
-                                   System.out.println("Checkout webhook sent!");
-                               }
-                               else
-                               {
-                                   webhook.sendCheckoutSuccess(userToMention, productOne, site);
-                                   System.out.println("Checkout webhook sent!");
-                               }
-                           }
-                        }
-                    }
-                    else
-                    {
-                        userToMention = db.getDiscordIDbyEmail(account);
-                        webhook.sendCheckoutSuccess(userToMention, item, site);
-                        System.out.println("Checkout webhook sent!");
-                    }
+                    System.out.println("Item is not a decline webhook");
+                    userToMention = resolveUserID(profile, email, account, db);
+                    itemCheckedOut = resolveItem(Product, productOne, description, item);
+                    webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
+                    System.out.println("Checkout failure sent");
                 }
+
             }
         }
     }

@@ -89,10 +89,10 @@ public class DiscordWebhook
         }
     }
 
-    public boolean sendCheckoutSuccess(String userId, String item, String website) {
+    public boolean sendCheckoutSuccess(String userId, String item) {
         return sendEmbed(
                 "✅ Successful Checkout!",
-                "**Item:** " + item + "\n**Website:** " + website,
+                "**Item:** " + item,
                 "00ff00", // Green color for success
                 "Volt ACO",
                 "Post Success",
@@ -100,10 +100,10 @@ public class DiscordWebhook
         );
     }
 
-    public boolean sendCheckoutFailure(String userId, String item, String website) {
+    public boolean sendCheckoutFailure(String userId, String item) {
         return sendEmbed(
                 "❌ Failed Checkout!",
-                "**Item:** " + item + "\n**Website:** " + website,
+                "**Item:** " + item,
                 "ff0000", // Red color for success
                 "Volt ACO",
                 "Purchase failed - check your account",
