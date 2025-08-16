@@ -185,6 +185,10 @@ public class Main extends ListenerAdapter
 
     public static boolean checkDecline(String input)
     {
+        if (input == null || input.isBlank())
+        {
+            return false;
+        }
         return declineTitle.contains(input);
     }
 
