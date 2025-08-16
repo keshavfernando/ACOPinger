@@ -26,11 +26,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 public class Main extends ListenerAdapter
 {
 
+
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
     private static DatabaseManager db;
     private static Dotenv dot;
     private static final Pattern pattern = Pattern.compile("^([^,]+),([^,]+),([^,]+)$");
@@ -80,7 +84,7 @@ public class Main extends ListenerAdapter
                     .queue();
         }
 
-        System.out.println("Waiting for messages");
+        logger.info("Waiting for messages");
     }
 
 
@@ -142,7 +146,7 @@ public class Main extends ListenerAdapter
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Failed to remove spoiler tag", e);
             return "";
         }
     }
@@ -218,8 +222,8 @@ public class Main extends ListenerAdapter
                 String Product = null;
                 String productOne = null;
 
-                System.out.println(title);
-                System.out.println(description);
+                logger.info(title);
+                logger.info(description);
 
                 for (MessageEmbed.Field field : embed.getFields())
                     switch (field.getName())
@@ -248,12 +252,12 @@ public class Main extends ListenerAdapter
                 account = removeSpoilerTag(account);
                 email =removeSpoilerTag(email);
 
-                System.out.println("Profile: " + profile);
-                System.out.println("Account: " + account);
-                System.out.println("Email: " + email);
-                System.out.println("Item: " + item);
-                System.out.println("Product: " + Product);
-                System.out.println("Product (1): " + productOne);
+                logger.info("Profile: " + profile);
+                logger.info("Account: " + account);
+                logger.info("Email: " + email);
+                logger.info("Item: " + item);
+                logger.info("Product: " + Product);
+                logger.info("Product (1): " + productOne);
 
                 String webhookURL = dot.get("DISCORD_URL");
                 DiscordWebhook webhook = new DiscordWebhook(webhookURL);
@@ -263,20 +267,20 @@ public class Main extends ListenerAdapter
 
                 if (checkDecline(title))
                 {
-                    System.out.println("Item is a decline webhook");
+                    logger.info("Item is a decline webhook");
                     userToMention = resolveUserID(profile, email, account, db);
                     itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutFailure(userToMention, itemCheckedOut);
-                    System.out.println("Checkout failure sent");
+                    logger.info("Checkout failure sent");
                 }
 
                 else
                 {
-                    System.out.println("Item is not a decline webhook");
+                    logger.info("Item is not a decline webhook");
                     userToMention = resolveUserID(profile, email, account, db);
                     itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
-                    System.out.println("Checkout failure sent");
+                    logger.info("Checkout failure sent");
                 }
 
             }
@@ -309,7 +313,7 @@ public class Main extends ListenerAdapter
                         channel.sendMessage("❌ User: " + email + " has NOT been added to database").queue();
                     }
                 } else {
-                    System.out.println("Bad format");
+                    logger.info("Bad format");
                 }
             }
         }
