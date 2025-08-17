@@ -153,7 +153,7 @@ public class Main extends ListenerAdapter
 
     public static String resolveUserID(String profile, String email, String account, DatabaseManager db)
     {
-        if (profile != null && !profile.isBlank())
+        if (profile != null && !profile.isBlank() && !profile.equals("Unknown"))
         {
             return db.getDiscordIDbyProfile(profile);
         }
@@ -193,6 +193,7 @@ public class Main extends ListenerAdapter
         {
             return false;
         }
+
         return declineTitle.contains(input);
     }
 
@@ -280,7 +281,7 @@ public class Main extends ListenerAdapter
                     userToMention = resolveUserID(profile, email, account, db);
                     itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
-                    logger.info("Checkout failure sent");
+                    logger.info("Checkout success sent");
                 }
 
             }
