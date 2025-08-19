@@ -153,18 +153,26 @@ public class Main extends ListenerAdapter
 
     public static String resolveUserID(String profile, String email, String account, DatabaseManager db)
     {
-        if (profile != null && !profile.isBlank() && !profile.equals("Unknown"))
+        if (profile != null)
         {
-            return db.getDiscordIDbyProfile(profile);
+            String cleanedProfile = profile.trim();
+
+            if (!cleanedProfile.isBlank() && !cleanedProfile.equalsIgnoreCase("unknown"))
+            {
+                return db.getDiscordIDbyProfile(cleanedProfile);
+            }
         }
-        else if (account != null && !account.isBlank())
+
+        if (account != null && !account.isBlank())
         {
             return db.getDiscordIDbyEmail(account);
         }
-        else
+        if (email != null && !email.isBlank())
         {
             return db.getDiscordIDbyEmail(email);
         }
+
+        return null;
     }
 
     public static String resolveItem(String product, String productOne, String description, String item)
@@ -251,7 +259,7 @@ public class Main extends ListenerAdapter
 
                 profile = removeSpoilerTag(profile);
                 account = removeSpoilerTag(account);
-                email =removeSpoilerTag(email);
+                email = removeSpoilerTag(email);
 
                 logger.info("Profile: " + profile);
                 logger.info("Account: " + account);
