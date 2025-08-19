@@ -151,7 +151,7 @@ public class Main extends ListenerAdapter
         }
     }
 
-    public static String resolveUserID(String profile, String email, String account, DatabaseManager db)
+    public static String resolveUserIDs(String profile, String email, String account, DatabaseManager db)
     {
         if (profile != null)
         {
@@ -277,7 +277,7 @@ public class Main extends ListenerAdapter
                 if (checkDecline(title))
                 {
                     logger.info("Item is a decline webhook");
-                    userToMention = resolveUserID(profile, email, account, db);
+                    userToMention = resolveUserIDs(profile, email, account, db);
                     itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutFailure(userToMention, itemCheckedOut);
                     logger.info("Checkout failure sent");
@@ -286,7 +286,7 @@ public class Main extends ListenerAdapter
                 else
                 {
                     logger.info("Item is not a decline webhook");
-                    userToMention = resolveUserID(profile, email, account, db);
+                    userToMention = resolveUserIDs(profile, email, account, db);
                     itemCheckedOut = resolveItem(Product, productOne, description, item);
                     webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
                     logger.info("Checkout success sent");
