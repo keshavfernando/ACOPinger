@@ -153,26 +153,34 @@ public class Main extends ListenerAdapter
 
     public static String resolveUserIDs(String profile, String email, String account, DatabaseManager db)
     {
-        if (profile != null)
-        {
-            String cleanedProfile = profile.trim();
 
-            if (!cleanedProfile.isBlank() && !cleanedProfile.equalsIgnoreCase("unknown"))
-            {
-                return db.getDiscordIDbyProfile(cleanedProfile);
-            }
+        String cleanedProfile = profile.trim();
+        String cleanedAccount = account.trim();
+        String cleanedEmail = email.trim();
+        String target = null;
+
+        if (!cleanedProfile.isBlank() && cleanedProfile.equalsIgnoreCase("unknown"))
+        {
+            target = db.getDiscordIDbyProfile(cleanedProfile);
+            return target;
         }
 
-        if (account != null && !account.isBlank())
+        else if (!cleanedAccount.isBlank())
         {
-            return db.getDiscordIDbyEmail(account);
-        }
-        if (email != null && !email.isBlank())
-        {
-            return db.getDiscordIDbyEmail(email);
+            target = db.getDiscordIDbyProfile(cleanedAccount);
+            return target;
         }
 
-        return null;
+        else if (!cleanedEmail.isBlank())
+        {
+            target = db.getDiscordIDbyProfile(cleanedEmail);
+            return target;
+        }
+
+        else
+        {
+            return null;
+        }
     }
 
     public static String resolveItem(String product, String productOne, String description, String item)
