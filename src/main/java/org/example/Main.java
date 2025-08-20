@@ -159,7 +159,7 @@ public class Main extends ListenerAdapter
         String cleanedEmail = email.trim();
         String target = null;
 
-        if (!cleanedProfile.isBlank() && cleanedProfile.equalsIgnoreCase("unknown"))
+        if (!cleanedProfile.isBlank() && !cleanedProfile.equalsIgnoreCase("unknown"))
         {
             target = db.getDiscordIDbyProfile(cleanedProfile);
             return target;
@@ -167,13 +167,13 @@ public class Main extends ListenerAdapter
 
         else if (!cleanedAccount.isBlank())
         {
-            target = db.getDiscordIDbyProfile(cleanedAccount);
+            target = db.getDiscordIDbyEmail(cleanedAccount);
             return target;
         }
 
         else if (!cleanedEmail.isBlank())
         {
-            target = db.getDiscordIDbyProfile(cleanedEmail);
+            target = db.getDiscordIDbyEmail(cleanedEmail);
             return target;
         }
 
