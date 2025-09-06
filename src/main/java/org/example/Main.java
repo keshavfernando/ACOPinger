@@ -45,7 +45,8 @@ public class Main extends ListenerAdapter
     private static Set<String> declineTitle = Set.of(
             "Order Canceled: Item Demand",
             "Order Canceled: Reseller",
-            "Your card was declined"
+            "Your card was declined",
+            "Order Canceled: Quantity Limit"
     );
 
     public static void main(String[] args) throws LoginException, InterruptedException
