@@ -49,6 +49,11 @@ public class Main extends ListenerAdapter
             "Order Canceled: Quantity Limit"
     );
 
+    private static Set<String> notAllowed = Set.of(
+            "931609777233096714",
+            "484788394547740672"
+    );
+
     public static void main(String[] args) throws LoginException, InterruptedException
     {
         dot = Dotenv.configure()
@@ -296,9 +301,16 @@ public class Main extends ListenerAdapter
                 {
                     logger.info("Item is not a decline webhook");
                     userToMention = resolveUserIDs(profile, email, account, db);
-                    itemCheckedOut = resolveItem(Product, productOne, description, item);
-                    webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
-                    logger.info("Checkout success sent");
+                    if (notAllowed.contains(userToMention))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        itemCheckedOut = resolveItem(Product, productOne, description, item);
+                        webhook.sendCheckoutSuccess(userToMention, itemCheckedOut);
+                        logger.info("Checkout success sent");
+                    }
                 }
 
             }
